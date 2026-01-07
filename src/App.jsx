@@ -287,7 +287,10 @@ function App() {
               </li>
               <li className="flex items-start">
                 <span className="text-primary-500 mr-2">•</span>
-                <span>Example format: {"{"}"messages": [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]{"}"}</span>
+                <span>
+                    Example format: {"{\"messages\": [{\"role\": \"user\", \"content\": \"...\"}, {\"role\": \"assistant\", \"content\": \"...\"}]}"}
+                </span>
+
               </li>
             </ul>
           </div>
