@@ -5,6 +5,7 @@ import './App.css'
 function App() {
   const [file, setFile] = useState(null)
   const [fileName, setFileName] = useState('')
+  const [model, setModel] = useState('gpt-4.1-2025-04-14')
   const [isUploading, setIsUploading] = useState(false)
   const [status, setStatus] = useState('')
   const [statusType, setStatusType] = useState('') // 'success', 'error', 'info'
@@ -27,6 +28,12 @@ function App() {
       return
     }
 
+    if (!model.trim()) {
+      setStatus('Please enter a base model for fine-tuning')
+      setStatusType('error')
+      return
+    }
+
     setIsUploading(true)
     setStatus('Uploading and starting fine-tuning process...')
     setStatusType('info')
@@ -34,6 +41,7 @@ function App() {
     try {
       const formData = new FormData()
       formData.append('file', file)
+      formData.append('model', model.trim())
 
       const response = await axios.post('https://gpt-tuning-backend.onrender.com/api/fine-tune', formData, {
         headers: {
@@ -42,7 +50,7 @@ function App() {
         timeout: 300000, // 5 minutes timeout
       })
 
-      setStatus(`Fine-tuning started successfully! Job ID: ${response.data.job_id}`)
+      setStatus(`Fine-tuning started successfully for ${response.data.model}! Job ID: ${response.data.job_id}`)
       setStatusType('success')
       setFile(null)
       setFileName('')
@@ -90,6 +98,24 @@ function App() {
           {/* Upload Card */}
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Base Model */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="model-input">
+                  Base Model
+                </label>
+                <input
+                  id="model-input"
+                  type="text"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  placeholder="e.g. gpt-4.1-2025-04-14, gpt-4o-mini-2024-07-18"
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 text-gray-900 placeholder-gray-500"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  The OpenAI model ID to fine-tune. Check OpenAI docs for available models.
+                </p>
+              </div>
+
               {/* File Upload Area */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -233,9 +259,9 @@ function App() {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={!file || isUploading}
+                disabled={!file || !model.trim() || isUploading}
                 className={`w-full py-3 px-6 rounded-lg font-semibold text-white transition-all transform ${
-                  !file || isUploading
+                  !file || !model.trim() || isUploading
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl'
                 }`}
